@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Restaurant Estación La Curva | Carta</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root { 
+      --bg:#f8f6ef; 
+      --card:#ffffff; 
+      --primary:#2f855a; /* Verde campestre */
+      --primary-dark:#276749;
+      --text:#1f2937; 
+      --muted:#6b7280; 
+      --border:#e5e7eb; 
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:system-ui,Segoe UI,Roboto,Arial;
+      background:var(--bg);
+      color:var(--text)
+    }
+    header{
+      position:sticky;
+      top:0;
+      background:#fefcf6cc;
+      backdrop-filter:saturate(1.2) blur(4px);
+      padding:12px 16px;
+      border-bottom:1px solid var(--border)
+    }
+    .wrap{max-width:1100px;margin:0 auto;padding:16px}
+    h1{margin:0;font-size:22px;color:var(--primary-dark)}
+    .menu{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:12px}
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:16px;
+      overflow:hidden;
+      box-shadow:0 2px 8px #0000000d
+    }
+    .card img{
+      width:100%;
+      height:180px;
+      object-fit:cover;
+      border-bottom:1px solid var(--border);
+    }
+    .title{font-weight:600;margin-top:8px}
+    .muted{color:var(--muted);font-size:14px}
+    .row{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap}
+    input[type="number"], input[type="text"], input[type="tel"]{
+      width:100%;
+      padding:8px;
+      border:1px solid var(--border);
+      border-radius:10px;
+    }
+    button{
+      cursor:pointer;
+      border:0;
+      border-radius:12px;
+      padding:10px 14px;
+      font-weight:600;
+    }
+    .btn{background:var(--primary);color:white}
+    .btn:hover{background:var(--primary-dark)}
+    .btn-outline{background:#fff;border:1px solid var(--border)}
+    .cart{
+      position:sticky;
+      bottom:0;
+      background:#fff;
+      border-top:1px solid var(--border);
+      padding:12px
+    }
+    .cart-inner{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      align-items:center;
+      justify-content:space-between
+    }
+    .cart-list{flex:1 1 520px;display:flex;flex-wrap:wrap;gap:8px}
+    .pill{
+      border:1px solid var(--border);
+      border-radius:999px;
+      padding:6px 10px;
+      background:#fff
+    }
+    .total{font-weight:700}
+    footer{padding:24px 16px;text-align:center;color:var(--muted)}
+    h2{color:var(--primary-dark);margin-top:24px}
+    .form{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-bottom:12px}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h1>🌿 Restaurant Estación La Curva</h1>
+      <div class="muted">Selecciona tus platos, cantidades y envía tu pedido.</div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <h2>Platos principales</h2>
+    <section id="menu-platos" class="menu"></section>
+
+    <h2>Bebidas frías</h2>
+    <section id="menu-bebidas" class="menu"></section>
+  </main>
+
+  <section class="cart">
+    <div class="wrap cart-inner">
+      <div class="cart-list" id="cartList"></div>
+      <div style="min-width:280px;flex:1">
+        <div class="form">
+          <input id="clienteNombre" type="text" placeholder="Tu nombre (requerido)" />
+          <input id="clienteMesa" type="text" placeholder="Número de mesa (opcional)" />
+          <input id="clienteTelefono" type="tel" placeholder="Teléfono (opcional)" />
+        </div>
+        <div class="row" style="justify-content:space-between;margin-top:10px">
+          <div class="total" id="total">Total: S/ 0.00</div>
+          <div class="row">
+            <button class="btn-outline" id="btnVaciar">Vaciar</button>
+            <button class="btn" id="btnEnviar">Enviar pedido</button>
+          </div>
+        </div>
+        <div class="muted" style="margin-top:6px">
+          👉 Para ver pedidos, abre <strong>admin.html</strong>.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>© Estación La Curva — Hecho con ❤️ en Cajamarca</footer>
+
+  <script>
+    const PLATOS = [
+      { id: 'lomo', nombre: 'Lomo Saltado', precio: 24.90, desc: 'Clásico con papas y arroz.', img: 'https://source.unsplash.com/featured/?lomo-saltado,peruvian-food' },
+      { id: 'trucha', nombre: 'Trucha Frita', precio: 27.50, desc: 'Con ensalada y papas doradas.', img: 'https://source.unsplash.com/featured/?fried-trout,fish-peru' },
+      { id: 'pollo', nombre: 'Pollo Broster (1/4)', precio: 18.00, desc: 'Crujiente con papas y ensalada.', img: 'https://source.unsplash.com/featured/?fried-chicken,peruvian' },
+      { id: 'caldo', nombre: 'Caldo de Gallina', precio: 12.00, desc: 'Tazón generoso, casero.', img: 'https://source.unsplash.com/featured/?chicken-soup,peruvian-food' }
+    ];
+
+    const BEBIDAS = [
+      { id: 'chicha', nombre: 'Chicha Morada (vaso)', precio: 4.00, desc: 'Refrescante y natural.', img: 'https://source.unsplash.com/featured/?chicha-morada,drink' },
+      { id: 'limonada', nombre: 'Limonada (jarra)', precio: 16.00, desc: 'Natural para compartir.', img: 'https://source.unsplash.com/featured/?lemonade,refreshing-drink' },
+      { id: 'gaseosa', nombre: 'Gaseosa 500ml', precio: 5.00, desc: 'Coca-Cola o Inca Kola.', img: 'https://source.unsplash.com/featured/?soft-drink,bottle' },
+      { id: 'agua', nombre: 'Agua mineral 600ml', precio: 3.50, desc: 'Sin gas.', img: 'https://source.unsplash.com/featured/?bottled-water,drink' }
+    ];
+
+    const cart = new Map(); 
+    const KEY = 'pedidos_restaurante';
+    const $ = s => document.querySelector(s);
+
+    function formateaSoles(n){ return 'S/ ' + n.toFixed(2); }
+
+    function renderMenu(arr, contId){
+      const cont = document.getElementById(contId);
+      cont.innerHTML = '';
+      arr.forEach(p=>{
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <img src="${p.img}" alt="${p.nombre}" loading="lazy">
+          <div class="wrap">
+            <div class="title">${p.nombre}</div>
+            <div class="muted">Precio: <strong>${formateaSoles(p.precio)}</strong></div>
+            <div class="muted">${p.desc}</div>
+            <div class="row">
+              <label for="q_${p.id}" class="muted">Cantidad:</label>
+              <input id="q_${p.id}" type="number" min="0" step="1" value="1" />
+              <button class="btn" data-add="${p.id}">Añadir</button>
+            </div>
+          </div>
+        `;
+        cont.appendChild(card);
+      });
+
+      cont.addEventListener('click', e=>{
+        const id = e.target.getAttribute('data-add');
+        if(!id) return;
+        const p = [...PLATOS, ...BEBIDAS].find(x=>x.id===id);
+        const qEl = document.getElementById('q_'+id);
+        const q = Math.max(0, parseInt(qEl.value||'0',10));
+        if(q>0){
+          const prev = cart.get(id) || { ...p, cantidad: 0 };
+          prev.cantidad += q;
+          cart.set(id, prev);
+          renderCart();
+          qEl.value = 1;
+        }
+      });
+    }
+
+    function renderCart(){
+      const list = $('#cartList');
+      list.innerHTML = '';
+      let total = 0;
+      for(const item of cart.values()){
+        const sub = item.cantidad * item.precio;
+        total += sub;
+        const pill = document.createElement('div');
+        pill.className = 'pill';
+        pill.innerHTML = `
+          <strong>${item.nombre}</strong> × ${item.cantidad}
+          — ${formateaSoles(sub)}
+          <button class="btn-outline" data-less="${item.id}" style="margin-left:8px">-1</button>
+          <button class="btn-outline" data-del="${item.id}">Quitar</button>
+        `;
+        list.appendChild(pill);
+      }
+      $('#total').textContent = `Total: ${formateaSoles(total)}`;
+
+      list.onclick = e=>{
+        const less = e.target.getAttribute('data-less');
+        const del = e.target.getAttribute('data-del');
+        if(less){
+          const it = cart.get(less);
+          if(!it) return;
+          it.cantidad = Math.max(0, it.cantidad-1);
+          if(it.cantidad===0) cart.delete(less); else cart.set(less,it);
+          renderCart();
+        }
+        if(del){ cart.delete(del); renderCart(); }
+      }
+    }
+
+    function guardarPedido(pedido){
+      const lista = JSON.parse(localStorage.getItem(KEY) || '[]');
+      lista.push(pedido);
+      localStorage.setItem(KEY, JSON.stringify(lista));
+    }
+
+    $('#btnVaciar').onclick = ()=>{ cart.clear(); renderCart(); };
+
+    $('#btnEnviar').onclick = ()=>{
+      const nombre = $('#clienteNombre').value.trim();
+      const mesa = $('#clienteMesa').value.trim();
+      const telefono = $('#clienteTelefono').value.trim();
+      if(!nombre){
+        alert('Por favor, ingresa tu nombre.');
+        return;
+      }
+      if(cart.size===0){
+        alert('Tu carrito está vacío.');
+        return;
+      }
+      const items = [...cart.values()].map(it=>({
+        id: it.id, nombre: it.nombre, cantidad: it.cantidad, precio: it.precio,
+        subtotal: parseFloat((it.cantidad*it.precio).toFixed(2))
+      }));
+      const total = items.reduce((a,b)=>a+b.subtotal,0);
+      const pedido = {
+        id: 'P'+Date.now(),
+        cliente: { nombre, mesa, telefono },
+        items,
+        total: parseFloat(total.toFixed(2)),
+        estado: 'pendiente',
+        fechaISO: new Date().toISOString()
+      };
+      guardarPedido(pedido);
+      alert('✅ Pedido enviado con éxito. ¡Gracias!');
+      cart.clear(); renderCart();
+    };
+
+    renderMenu(PLATOS, 'menu-platos');
+    renderMenu(BEBIDAS, 'menu-bebidas');
+    renderCart();
+  </script>
+</body>
+</html>
